@@ -46,19 +46,25 @@ static void		swap_node(Priqueue *heap, unsigned int a, unsigned int b);
 static Priqueue*	popall(Priqueue *heap);
 
 
-MHEAP_API Priqueue* priqueue_initialize(int initial_length){
-  int mutex_status;
+MHEAP_API Priqueue* priqueue_initialize(unsigned int initial_length, unsigned int blocking) {
+  int mutex_status, cond_status;
   
   Priqueue	*heap  = malloc(sizeof(*heap)) MPANIC(heap);  
   const size_t	 hsize = initial_length * sizeof(*heap->array);
 
   mutex_status = pthread_mutex_init(&(heap->lock), NULL);
   if (mutex_status != 0) goto error;
+
+  if (blocking) {
+    cond_status = pthread_cond_init(&(heap->not_empty), NULL);
+    if (cond_status != 0) goto error;
+  }
   
   heap->head	  = NULL;
   heap->heap_size = initial_length;
   heap->occupied  = 1;
   heap->current	  = 1;
+  heap->blocking  = blocking;
   heap->array	  = malloc(hsize) MPANIC(heap->array);
 
   memset(heap->array, 0x00, hsize);
@@ -106,6 +112,8 @@ MHEAP_API void priqueue_insert(Priqueue *heap, Data *data, uintptr_t priority){
   PQLOCK(&(heap->lock));
   insert_node(heap, node);
   PQUNLOCK(&(heap->lock));
+  if (heap->blocking)
+    pthread_cond_signal(&(heap->not_empty));
     
   return;
   
@@ -201,6 +209,10 @@ MHEAP_API Node *priqueue_pop(Priqueue *heap){
   Node *node = NULL;
 
   PQLOCK(&(heap->lock));
+  if (heap->blocking) {
+    while(heap->current == 1)
+      pthread_cond_wait(&(heap->not_empty), &(heap->lock));
+  }
   node = pop_node(heap);
   PQUNLOCK(&(heap->lock));
 
@@ -270,7 +282,7 @@ MHEAP_API void priqueue_node_free(Priqueue *heap, Node *node){
 }
 
 static Priqueue* popall(Priqueue *heap){
-  Priqueue *result = priqueue_initialize(heap->heap_size);
+  Priqueue *result = priqueue_initialize(heap->heap_size, heap->blocking);
 
   Node* item = priqueue_pop(heap);
 

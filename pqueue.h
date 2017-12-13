@@ -53,7 +53,9 @@ struct _heap {
   unsigned int heap_size;
   unsigned int occupied;
   unsigned int current;
+  unsigned int blocking;
   pthread_mutex_t lock;
+  pthread_cond_t not_empty;
 };
 
 typedef enum {
@@ -67,7 +69,7 @@ typedef enum {
 
 
 Priqueue *
-priqueue_initialize(int);
+priqueue_initialize(unsigned int, unsigned int);
 
 void
 priqueue_insert(Priqueue *, Data *, uintptr_t);
