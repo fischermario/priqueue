@@ -262,7 +262,9 @@ MHEAP_API void priqueue_free(Priqueue *heap){
 
 MHEAP_API void priqueue_node_free(Priqueue *heap, Node *node){
   if (node != NULL) {
-    free(node->data->data);
+    if (node->data->data != NULL)
+        free(node->data->data);
+    free(node->data);
     free(node);
   }
 }
