@@ -66,7 +66,7 @@ int main(){
     printf("Priqueue successfully initialized!\n");
   } else {
     printf("Error initializing Priqueue! Exit...\n");
-	return 1;
+    return 1;
   }
 
   pthread_create(&t,NULL,consumer,(void *)heap);
@@ -74,11 +74,11 @@ int main(){
 
   unsigned int i = 1;
   for(; i < MAX_ITEMS; i++) {
-	Data *value = (Data *) malloc(sizeof(Data));
+    Data *value = (Data *) malloc(sizeof(Data));
     value->type = TYPE_CHAR;
     value->data = (char *) malloc(7 * sizeof(char *));
     sprintf(value->data, "test %d", i);
-	printf("Insert '%s' with priority %d\n", (char *)value->data, MAX_ITEMS-i);
+    printf("Insert '%s' with priority %d\n", (char *)value->data, MAX_ITEMS-i);
     priqueue_insert(heap, value, MAX_ITEMS-i);
   }
 
