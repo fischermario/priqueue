@@ -100,7 +100,6 @@ static MHEAP_API MHEAPSTATUS realloc_heap(Priqueue *heap) {
 	return MHEAP_NOREALLOC;
 }
 
-
 MHEAP_API void priqueue_insert(Priqueue *heap, Data *data, uintptr_t priority) {
 	Node *node = malloc(sizeof(*node)) MPANIC(node);
 	node->priority = priority;
@@ -115,13 +114,6 @@ MHEAP_API void priqueue_insert(Priqueue *heap, Data *data, uintptr_t priority) {
 error:
 	node->data = NULL;
 	free(node);
-}
-
-MHEAP_API void priqueue_insert_ptr(Priqueue *heap, void *data, int type, uintptr_t priority) {
-	Data *d = malloc(sizeof(Data)) MPANIC(d);
-	d->data = data;
-	d->type = type;
-	priqueue_insert(heap, d, priority);
 }
 
 static void insert_node(Priqueue *heap, Node* node) {

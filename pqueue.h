@@ -75,9 +75,6 @@ priqueue_initialize(unsigned int, unsigned int);
 void
 priqueue_insert(Priqueue *, Data *, uintptr_t);
 
-void
-priqueue_insert_ptr(Priqueue *, void *, int, uintptr_t);
-
 Node *
 priqueue_pop(Priqueue *);
 
