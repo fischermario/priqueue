@@ -89,4 +89,7 @@ priqueue_node_free(Priqueue *, Node *);
 Priqueue *
 priqueue_popall(Priqueue *);
 
+int
+priqueue_isempty(Priqueue *);
+
 #endif

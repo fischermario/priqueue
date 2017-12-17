@@ -264,4 +264,16 @@ error:
 	return NULL;
 }
 
+MHEAP_API int priqueue_isempty(Priqueue *heap) {
+	if (heap == NULL) goto error;
+
+	if (heap->current == 0) // empty
+		return 0;
+	else // not empty
+		return -1;
+
+error:
+	return -1;
+}
+
 #endif

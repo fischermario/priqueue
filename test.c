@@ -45,7 +45,7 @@ enum {
 void *producer(void *arg) {
 	Priqueue *h = (Priqueue *)arg;
 
-	printf("Producer %u started!\n", (unsigned int)pthread_self());
+	printf("Producer %u started!\n", (unsigned int) pthread_self());
 
 	unsigned int i = 1;
 	for(; i < MAX_ITEMS; i++) {
@@ -59,7 +59,10 @@ void *producer(void *arg) {
 		priqueue_insert(h, value, MAX_ITEMS - i);
 	}
 
-	printf("Producer %u finished!\n", (unsigned int)pthread_self());
+	printf("Producer %u finished!\n", (unsigned int) pthread_self());
+
+	if (priqueue_isempty(h) < 0)
+		printf("Queue is NOT empty!\n");
 
 	SWAP_COND(cond, 0, 1);
 
@@ -70,20 +73,20 @@ void *consumer(void *arg) {
 	Node *d = NULL;
 	Priqueue *h = (Priqueue *)arg;
 
-	printf("Consumer %u started!\n", (unsigned int)pthread_self());
+	printf("Consumer %u started!\n", (unsigned int) pthread_self());
 
 	for (;;) {
 		sched_yield();
 		CHECK_COND(cond);
 	}
 
-	printf("Consumer %u ready to process...\n", (unsigned int)pthread_self());
+	printf("Consumer %u ready to process...\n", (unsigned int) pthread_self());
 
 	for (;;) {
 		d = priqueue_pop(h);
 
 		if (d != NULL) {
-			printf("Consumer %u: Remove '%s' with priority %lu\n", (unsigned int)pthread_self(), (char *)d->data->data, d->priority);
+			printf("Consumer %u: Remove '%s' with priority %lu\n", (unsigned int) pthread_self(), (char *) d->data->data, d->priority);
 
 			priqueue_node_free(h, d);
 		} else {
@@ -106,13 +109,19 @@ int main() {
 		return 1;
 	}
 
-	pthread_create(&t1, NULL, producer, (void *)heap);
-	pthread_create(&t2, NULL, consumer, (void *)heap);
-	pthread_create(&t3, NULL, consumer, (void *)heap);
+	if (priqueue_isempty(heap) == 0)
+		printf("Queue is empty!\n");
+
+	pthread_create(&t1, NULL, producer, (void *) heap);
+	pthread_create(&t2, NULL, consumer, (void *) heap);
+	pthread_create(&t3, NULL, consumer, (void *) heap);
 
 	pthread_join(t1, NULL);
 	pthread_join(t2, NULL);
 	pthread_join(t3, NULL);
+
+	if (priqueue_isempty(heap) == 0)
+		printf("Queue is empty (again)!\n");
 
 	printf("Finished! Cleaning up...\n");
 	
