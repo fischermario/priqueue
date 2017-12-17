@@ -129,16 +129,6 @@ MHEAP_API void priqueue_insert_ptr(Priqueue *heap, void *data, int type, uintptr
   priqueue_insert(heap, d, priority);
 }
 
-MHEAP_API void priqueue_insertraw(Priqueue *heap, Node *data){
-
-  PQLOCK(&(heap->lock));  
-  insert_node(heap, data);
-  PQUNLOCK(&(heap->lock));
-
-error:
-  return;
-}
-
 static void insert_node(Priqueue *heap, Node* node){
   
   if (heap->current == 1 && heap->array[1] == NULL){
@@ -289,9 +279,8 @@ static Priqueue* popall(Priqueue *heap){
   while(item != NULL){
     item = priqueue_pop(heap);
     
-    if(item != NULL) {
-      priqueue_insertraw(result, item);
-    }    
+    if(item != NULL)
+      insert_node(result, item);
   }
   
   return result;  

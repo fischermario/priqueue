@@ -88,8 +88,5 @@ priqueue_node_free(Priqueue *, Node *);
 
 Priqueue *
 priqueue_popall(Priqueue *);
-
-void
-priqueue_insertraw(Priqueue *, Node *);
   
 #endif
