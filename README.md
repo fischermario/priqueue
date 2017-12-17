@@ -31,10 +31,14 @@ Deallocate data node after poping.
 Deallocate memory. Also deallocates remaining nodes from queue.
 
     void priqueue_free(Priqueue *);
-	
+
 Create a new queue from all elements in current queue.
 
-    Priqueue* priqueue_popall(Priqueue *heap);
+    Priqueue *priqueue_popall(Priqueue *heap);
+
+Check if queue is empty. Returns 0 if queue is empty or -1 if queue is not empty.
+
+    int priqueue_isempty(Priqueue *);
 
 # ToDos
 
