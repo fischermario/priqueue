@@ -44,6 +44,7 @@ struct _data {
 struct _node {
 	uintptr_t priority;
 	unsigned int index;
+	unsigned long long id;
 	struct _data *data;
 	struct _node *next;
 };
@@ -52,9 +53,10 @@ struct _heap {
 	struct _node *head;
 	struct _node **array;
 	unsigned int heap_size;
-	unsigned int occupied;
+	unsigned int limit_size;
 	unsigned int current;
 	unsigned int blocking;
+	unsigned long long next_id;
 	pthread_mutex_t lock;
 	pthread_cond_t not_empty;
 };
@@ -70,9 +72,9 @@ typedef enum {
 
 
 Priqueue *
-priqueue_initialize(unsigned int, unsigned int);
+priqueue_initialize(unsigned int, unsigned int, unsigned int);
 
-void
+int
 priqueue_insert(Priqueue *, Data *, uintptr_t);
 
 Node *
