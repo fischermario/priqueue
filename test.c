@@ -32,66 +32,78 @@ SOFTWARE.
 
 #define MAX_ITEMS 10
 
-#define CHECK_COND(cond) if (__sync_bool_compare_and_swap(&cond,1,1)) break;
-#define SWAP_COND(cond,a,b) while(1){if (__sync_bool_compare_and_swap(&cond,a,b)) break; }
+#define CHECK_COND(cond) if (__sync_bool_compare_and_swap(&cond, 1, 1)) break;
+#define SWAP_COND(cond, a, b) while(1) { if (__sync_bool_compare_and_swap(&cond, a, b)) break; }
 
 volatile unsigned int cond = 0;
 
-enum { TYPE_CHAR, TYPE_INT, TYPE_FLOAT };
+enum {
+	TYPE_CHAR,
+	TYPE_INT,
+	TYPE_FLOAT
+};
 
-void *consumer(void *arg){
-  Node *d = NULL;
-  Priqueue *h = (Priqueue *)arg;
-  usleep(10);
-  printf("Consumer %u started!\n", (unsigned int)pthread_self());
-  for(;;){
-    d = priqueue_pop(h);
-    if (d != NULL){
-      printf("Consumer %u: Remove '%s' with priority %lu\n", (unsigned int)pthread_self(), (char *)d->data->data, d->priority);
-      priqueue_node_free(h,d);
-    }
-    sched_yield();
-    CHECK_COND(cond);
-  }
-  return NULL;
+void *consumer(void *arg) {
+	Node *d = NULL;
+	Priqueue *h = (Priqueue *)arg;
+
+	usleep(10);
+
+	printf("Consumer %u started!\n", (unsigned int)pthread_self());
+
+	for (;;) {
+		d = priqueue_pop(h);
+
+		if (d != NULL) {
+			printf("Consumer %u: Remove '%s' with priority %lu\n", (unsigned int)pthread_self(), (char *)d->data->data, d->priority);
+
+			priqueue_node_free(h,d);
+		}
+
+		sched_yield();
+		CHECK_COND(cond);
+	}
+
+	return NULL;
 }
 
-int main(){
-  pthread_t t;
-  pthread_t t2;
+int main() {
+	pthread_t t1, t2;
 
-  Priqueue *heap = priqueue_initialize(10, 0);
+	Priqueue *heap = priqueue_initialize(10, 0);
 
-  if (heap != NULL) {
-    printf("Priqueue successfully initialized!\n");
-  } else {
-    printf("Error initializing Priqueue! Exit...\n");
-    return 1;
-  }
+	if (heap != NULL) {
+		printf("Priqueue successfully initialized!\n");
+	} else {
+		printf("Error initializing Priqueue! Exit...\n");
+		return 1;
+	}
 
-  pthread_create(&t,NULL,consumer,(void *)heap);
-  pthread_create(&t2,NULL,consumer,(void *)heap);
+	pthread_create(&t1, NULL, consumer, (void *)heap);
+	pthread_create(&t2, NULL, consumer, (void *)heap);
 
-  unsigned int i = 1;
-  for(; i < MAX_ITEMS; i++) {
-    Data *value = (Data *) malloc(sizeof(Data));
-    value->type = TYPE_CHAR;
-    value->data = (char *) malloc(7 * sizeof(char *));
-    sprintf(value->data, "test %d", i);
-    printf("Insert '%s' with priority %d\n", (char *)value->data, MAX_ITEMS-i);
-    priqueue_insert(heap, value, MAX_ITEMS-i);
-  }
+	unsigned int i = 1;
+	for(; i < MAX_ITEMS; i++) {
+		Data *value = (Data *) malloc(sizeof(Data));
+		value->type = TYPE_CHAR;
+		value->data = (char *) malloc(7 * sizeof(char *));
+		sprintf(value->data, "test %d", i);
 
-  sleep(2);
+		printf("Insert '%s' with priority %d\n", (char *) value->data, MAX_ITEMS-i);
 
-  printf("Finished! Cleaning up...\n");
+		priqueue_insert(heap, value, MAX_ITEMS - i);
+	}
 
-  SWAP_COND(cond,0,1);
+	sleep(2);
 
-  pthread_join(t,NULL);
-  pthread_join(t2,NULL);
+	printf("Finished! Cleaning up...\n");
 
-  priqueue_free(heap);
+	SWAP_COND(cond, 0, 1);
 
-  return 0;
+	pthread_join(t1, NULL);
+	pthread_join(t2, NULL);
+
+	priqueue_free(heap);
+
+	return 0;
 }
