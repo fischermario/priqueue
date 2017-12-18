@@ -78,7 +78,7 @@ error:
 }
 
 static MHEAP_API MHEAPSTATUS realloc_heap(Priqueue *heap) {
-	if (heap->current == heap->heap_size) {
+	if (heap->current == heap->heap_size - 1) {
 		const size_t arrsize = sizeof(*heap->array);
 
 		Node **resized_heap = NULL;
@@ -123,7 +123,7 @@ error:
 }
 
 static int insert_node(Priqueue *heap, Node *node) {
-	if (heap->current == heap->heap_size) {
+	if (heap->current == heap->heap_size - 1) {
 		if (heap->limit_size > 0) {
 			priqueue_node_free(heap, node);
 			return -1;
