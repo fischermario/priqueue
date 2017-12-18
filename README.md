@@ -16,7 +16,7 @@ Initialize Priority Queue with *initial_length*, choose if its functions should 
 
     Priqueue *priqueue_initialize(unsigned int initial_length, unsigned int blocking, unsigned int limit_length);
 
-Insert into Queue with specified priority. Returns 0 on success or -1 if queue is full (only possible if *limit_length* was set to a value greater than zero on *priqueue_initialize*).
+Insert into Queue with specified priority. On success, *priqueue_insert* returns 0 or -1 if the queue is full (only possible if *limit_length* was set to a value greater than zero on *priqueue_initialize*).
 
     int priqueue_insert(Priqueue *, Data *, uintptr_t);
 
@@ -36,9 +36,13 @@ Create a new queue from all elements in current queue.
 
     Priqueue *priqueue_popall(Priqueue *heap);
 
-Check if queue is empty. Returns 0 if queue is empty or -1 if queue is not empty.
+Check if queue is empty. If the queue is empty, *priqueue_peek* returns 0 or -1 if the queue is not empty.
 
     int priqueue_isempty(Priqueue *);
+
+Get the node with maximum priority (head) without removing it from the queue. If the queue is empty, *priqueue_peek* returns NULL.
+
+    Node *priqueue_peek(Priqueue *);
 
 # ToDos
 
