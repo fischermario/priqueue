@@ -88,6 +88,10 @@ void *consumer(void *arg) {
 		if (d != NULL) {
 			printf("Consumer %u: Remove '%s' with priority %lu\n", (unsigned int) pthread_self(), (char *) d->data->data, d->priority);
 
+			Node *head = priqueue_peek(h);
+			if (head != NULL)
+				printf("  Head is now '%s'\n", (char *) head->data->data);
+
 			priqueue_node_free(h, d);
 		} else {
 			break;
