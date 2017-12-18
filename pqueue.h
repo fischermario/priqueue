@@ -92,4 +92,7 @@ priqueue_popall(Priqueue *);
 int
 priqueue_isempty(Priqueue *);
 
+Node *
+priqueue_peek(Priqueue *heap);
+
 #endif

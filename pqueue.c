@@ -241,7 +241,7 @@ MHEAP_API void priqueue_node_free(Priqueue *heap, Node *node) {
 static Priqueue *popall(Priqueue *heap) {
 	Priqueue *result = priqueue_initialize(heap->heap_size, heap->blocking, heap->limit_size);
 
-	Node* item = NULL;
+	Node *item = NULL;
 
 	while ((item = pop_node(heap)) != NULL)
 		insert_node(result, item);
@@ -274,6 +274,20 @@ MHEAP_API int priqueue_isempty(Priqueue *heap) {
 
 error:
 	return -1;
+}
+
+MHEAP_API Node *priqueue_peek(Priqueue *heap) {
+	Node *node = NULL;
+
+	if (heap == NULL) goto error;
+
+	if (priqueue_isempty(heap) < 0)
+		node = heap->array[1];
+
+	return node;
+
+error:
+	return NULL;
 }
 
 #endif
