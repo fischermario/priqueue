@@ -290,4 +290,46 @@ error:
 	return NULL;
 }
 
+MHEAP_API Priqueue_Iterator *priqueue_iterator_create(Priqueue *heap) {
+	if (heap == NULL) goto error;
+
+	Priqueue_Iterator *iterator = (Priqueue_Iterator *) malloc(sizeof(Priqueue_Iterator));
+
+	PQLOCK(&(heap->lock));
+	iterator->heap = heap;
+	iterator->index = 0;
+
+	return iterator;
+
+error:
+	return NULL;
+}
+
+MHEAP_API Node *priqueue_iterator_get_next(Priqueue_Iterator *iterator) {
+	if (iterator == NULL) goto error;
+
+	iterator->index++;
+
+	if (iterator->index > iterator->heap->current)
+		return NULL;
+
+	return iterator->heap->array[iterator->index];
+	
+error:
+	return NULL;
+}
+
+MHEAP_API int priqueue_iterator_free(Priqueue_Iterator *iterator) {
+	if (iterator == NULL) goto error;
+
+	PQUNLOCK(&(iterator->heap->lock));
+
+	free(iterator);
+
+	return 0;
+
+error:
+	return -1;
+}
+
 #endif

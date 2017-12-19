@@ -35,6 +35,7 @@ SOFTWARE.
 typedef struct _data Data;
 typedef struct _node Node;
 typedef struct _heap Priqueue;
+typedef struct _iterator Priqueue_Iterator;
 
 struct _data {
 	unsigned int type;
@@ -59,6 +60,12 @@ struct _heap {
 	unsigned long long next_id;
 	pthread_mutex_t lock;
 	pthread_cond_t not_empty;
+};
+
+struct _iterator {
+	struct _heap *heap;
+	unsigned int index;
+	uintptr_t priority;
 };
 
 typedef enum {
@@ -93,6 +100,15 @@ int
 priqueue_isempty(Priqueue *);
 
 Node *
-priqueue_peek(Priqueue *heap);
+priqueue_peek(Priqueue *);
+
+Priqueue_Iterator *
+priqueue_iterator_create(Priqueue *);
+
+Node *
+priqueue_iterator_get_next(Priqueue_Iterator *);
+
+int
+priqueue_iterator_free(Priqueue_Iterator *);
 
 #endif
