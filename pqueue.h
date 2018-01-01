@@ -102,6 +102,9 @@ priqueue_isempty(Priqueue *);
 Node *
 priqueue_peek(Priqueue *);
 
+int
+priqueue_getsize(Priqueue *);
+
 Priqueue_Iterator *
 priqueue_iterator_create(Priqueue *);
 

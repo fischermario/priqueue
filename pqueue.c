@@ -59,7 +59,7 @@ MHEAP_API Priqueue *priqueue_initialize(unsigned int initial_length, unsigned in
 		cond_status = pthread_cond_init(&(heap->not_empty), NULL);
 		if (cond_status != 0) goto error;
 	}
-	
+
 	if (limit_length > 0)
 		assert(initial_length <= limit_length);
 
@@ -291,6 +291,12 @@ MHEAP_API Node *priqueue_peek(Priqueue *heap) {
 
 error:
 	return NULL;
+}
+
+MHEAP_API int priqueue_getsize(Priqueue *heap) {
+	if (heap == NULL) return -1;
+
+	return heap->current;
 }
 
 MHEAP_API Priqueue_Iterator *priqueue_iterator_create(Priqueue *heap) {
