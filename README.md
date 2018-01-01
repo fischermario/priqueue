@@ -4,9 +4,14 @@ Thread Safe Priority Queue in C
 
 The implementation is based on a max-heap derived from [here](http://www.eecs.wsu.edu/~ananth/CptS223/Lectures/heaps.pdf).
 
-# Example
+# Examples
 
-see *test.c*
+*   *test.c*
+
+    Generic example with one producer and two consumer threads to showcase the functionality of the API.
+*   *test_iterator.c*
+
+    Example with one consumer and one producer that prevents inserting items that are already present in the queue by using the queue iterator API.
 
 # API
 
@@ -45,6 +50,10 @@ Check if queue is empty. If the queue is empty, *priqueue_isempty* returns 0 or 
 Get the node with maximum priority (head) without removing it from the queue. If the queue is empty, *priqueue_peek* returns NULL.
 
     Node *priqueue_peek(Priqueue *);
+
+Get the number of items in the queue.
+
+    int priqueue_getsize(Priqueue *);
 
 ## Iterator functions
 
