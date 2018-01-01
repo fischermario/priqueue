@@ -51,7 +51,7 @@ void *producer(void *arg) {
 	for(; i < MAX_ITEMS; i++) {
 		Data *value = (Data *) malloc(sizeof(Data));
 		value->type = TYPE_CHAR;
-		value->data = (char *) malloc(7 * sizeof(char *));
+		value->data = (char *) malloc(7 * sizeof(char));
 		sprintf(value->data, "test %d", i);
 
 		printf("Insert '%s' with priority %d\n", (char *) value->data, MAX_ITEMS-i);

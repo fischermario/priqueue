@@ -31,16 +31,28 @@ SOFTWARE.
 #include <string.h>
 #include "pqueue.h"
 
+// --------------------------------------------------------------------------
+// | Defines																|
+// --------------------------------------------------------------------------
+
 #define MAX_ITEMS 10
 #define STRLEN 6
 
 #define CHECK_COND(cond) if (__sync_bool_compare_and_swap(&cond, 1, 1)) break;
 #define SWAP_COND(cond, a, b) while(1) { if (__sync_bool_compare_and_swap(&cond, a, b)) break; }
 
+// --------------------------------------------------------------------------
+// | Global static and volatile variables									|
+// --------------------------------------------------------------------------
+
 volatile unsigned int cond = 0, remaining_threads = 2;
 
 static Priqueue *heap = NULL;
 static sigset_t signal_mask;
+
+// --------------------------------------------------------------------------
+// | Helper functions														|
+// --------------------------------------------------------------------------
 
 void cleanup(int code) {
 	printf("Waiting for all threads to finish...\n");
@@ -102,6 +114,10 @@ int is_element_existing(Priqueue *h, char *lookval) {
 	return ret;
 }
 
+// --------------------------------------------------------------------------
+// | Signal handler thread													|
+// --------------------------------------------------------------------------
+
 void *signal_thread(void *arg) {
 	int err, sig_caught;
 
@@ -131,6 +147,10 @@ void *signal_thread(void *arg) {
 	return NULL;
 }
 
+// --------------------------------------------------------------------------
+// | Producer and consumer threads											|
+// --------------------------------------------------------------------------
+
 void *producer(void *arg) {
 	Priqueue *h = (Priqueue *)arg;
 
@@ -145,7 +165,7 @@ void *producer(void *arg) {
 			CHECK_COND(cond);
 
 			Data *value = (Data *) malloc(sizeof(Data));
-			value->data = (char *) malloc((STRLEN + 1) * sizeof(char *));
+			value->data = (char *) malloc((STRLEN + 1) * sizeof(char));
 			sprintf(value->data, "test %d", i);
 
 			if (is_element_existing(h, value->data) != 0) {
@@ -180,7 +200,8 @@ void *consumer(void *arg) {
 		d = priqueue_pop(h);
 
 		if (d != NULL) {
-			printf("<== Remove '%s' with priority %lu\n", (char *) d->data->data, d->priority);
+			printf("<== Remove '%s' with priority %lu (%d items remaining in queue)\n", 
+				   (char *) d->data->data, d->priority, priqueue_getsize(h));
 			priqueue_node_free(h, d);
 			sleep(1); // 1 s
 		}
@@ -203,8 +224,10 @@ int main() {
 		return EXIT_FAILURE;
 	}
 
-	if (setup_signals() != 0)
-		cleanup(EXIT_FAILURE);
+	if (setup_signals() != 0) {
+		priqueue_free(heap);
+		return EXIT_FAILURE;
+	}
 
 	pthread_create(&t1, NULL, producer, (void *) heap);
 	pthread_create(&t2, NULL, consumer, (void *) heap);
