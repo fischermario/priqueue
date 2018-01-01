@@ -1,24 +1,31 @@
-program_NAME := test
-program_C_SRCS := $(wildcard *.c)
-program_C_OBJS := ${program_C_SRCS:.c=.c}
-program_OBJS := $(program_C_OBJS)
-program_INCLUDE_DIRS :=
-program_LIBRARY_DIRS :=
-program_LIBRARIES := -lpthread
+TEST_GENERIC_SRCS := test.c
+TEST_GENERIC_OBJS := ${TEST_GENERIC_SRCS:.c=.c}
+TEST_ITERATOR_SRCS := test_iterator.c
+TEST_ITERATOR_OBJS := ${TEST_ITERATOR_SRCS:.c=.c}
 
+COMMON_SOURCES := $(filter-out $(TEST_GENERIC_SRCS) $(TEST_ITERATOR_SRCS),$(wildcard *.c))
+COMMON_OBJS := ${COMMON_SOURCES:.c=.c}
 
-CPPFLAGS += $(foreach includedir, $(program_INCLUDE_DIRS),-I$(includedir))
-LDFLAGS +=  $(foreach librarydir, $(program_LIBRARY_DIRS),-L$(librarydir))
-LDFLAGS +=  $(foreach library, $(program_LIBRARIES), -l(library))
+priqueue_INCLUDE_DIRS := .
+priqueue_LIBRARY_DIRS :=
+priqueue_LIBRARIES := pthread
+
+CPPFLAGS += $(foreach includedir, $(priqueue_INCLUDE_DIRS),-I$(includedir))
+LDFLAGS +=  $(foreach librarydir, $(priqueue_LIBRARY_DIRS),-L$(librarydir))
+LDFLAGS +=  $(foreach library, $(priqueue_LIBRARIES),-l$(library))
+
 
 .PHONY: all clean distclean
 
-all: $(program_NAME)
+all: test_generic test_iterator
 
-$(program_NAME): $(program_OBJS)
-	$(CC) $(program_OBJS) $(program_LIBRARIES) -o $(program_NAME) -Wall -D _BSD_SOURCE
+test_generic: $(TEST_GENERIC_OBJS) $(COMMON_OBJS)
+	$(CC) -Wall -D _BSD_SOURCE $(TEST_GENERIC_OBJS) $(COMMON_OBJS) $(CPPFLAGS) $(LDFLAGS) -o test_generic
+
+test_iterator: $(TEST_ITERATOR_OBJS) $(COMMON_OBJS)
+	$(CC) -Wall -D _BSD_SOURCE $(TEST_ITERATOR_OBJS) $(COMMON_OBJS) $(CPPFLAGS) $(LDFLAGS) -o test_iterator
 
 clean:
-	@- $(RM) $(program_NAME)
+	@- $(RM) test_generic test_iterator
 
 distclean: clean
