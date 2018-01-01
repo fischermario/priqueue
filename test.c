@@ -83,6 +83,7 @@ void *consumer(void *arg) {
 	printf("Consumer %u ready to process...\n", (unsigned int) pthread_self());
 
 	for (;;) {
+		sched_yield();
 		d = priqueue_pop(h);
 
 		if (d != NULL) {
