@@ -29,6 +29,7 @@ SOFTWARE.
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <pthread.h>
 
 #define MHEAP_API
 
