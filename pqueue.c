@@ -47,6 +47,9 @@ static Priqueue *popall(Priqueue *heap);
 MHEAP_API Priqueue *priqueue_initialize(unsigned int initial_length, unsigned int blocking, unsigned int limit_length) {
 	int mutex_status, cond_status;
 
+	if (limit_length > 0)
+		assert(initial_length <= limit_length);
+
 	initial_length++;
 
 	Priqueue *heap = malloc(sizeof(*heap)) MPANIC(heap);
@@ -59,9 +62,6 @@ MHEAP_API Priqueue *priqueue_initialize(unsigned int initial_length, unsigned in
 		cond_status = pthread_cond_init(&(heap->not_empty), NULL);
 		if (cond_status != 0) goto error;
 	}
-
-	if (limit_length > 0)
-		assert(initial_length <= limit_length);
 
 	heap->head = NULL;
 	heap->heap_size = initial_length;
